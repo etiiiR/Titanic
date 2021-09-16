@@ -11,11 +11,29 @@ from sklearn import metrics #Import scikit-learn metrics module for accuracy cal
 
 titanic = pd.read_csv ('minichallenge_titanic.csv')
 
-feature_cols = ["PassengerId","Pclass","Sex","Age","SibSp","Parch","Ticket","Fare","Cabin"]
+titanic_mean_sex = titanic.groupby(['Sex']).mean().sort_values(
+     ['Survived'], ascending=False)
+titanic_mean_Pclass = titanic.groupby(['Pclass']).mean(
+ ).sort_values(['Survived'], ascending=False)
+
+values = []
+for  key in titanic['Age'].index:
+    Age = titanic['Age'].loc[key]
+    if Age in range(0,18):
+         values.append(1)
+    elif Age in range(18,65):
+         values.append(2)
+    elif Age in range(65,999):
+         values.append(3)
+    else:
+         values.append(4)
+titanic['Age_cat'] = values
+
+feature_cols = ["PassengerId","Pclass","Sex","SibSp","Parch","Ticket","Fare","Cabin", "Age_cat"]
 X = titanic.notna()[feature_cols] # Features
 y = titanic.Survived # Target variable
 
-titanic['Family Members'] = titanic['SibSp'] + titanic['Parch'] + 1
+#titanic['Family Members'] = titanic['SibSp'] + titanic['Parch'] + 1
 
 
 # Split dataset into training set and test set
@@ -27,7 +45,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 clf = DecisionTreeClassifier()
 
 # Train Decision Tree Classifer
-clf = clf.fit(X_train,y_train)
+clf.fit(X_train,y_train)
 
 #Predict the response for test dataset
 y_pred = clf.predict(X_test)
